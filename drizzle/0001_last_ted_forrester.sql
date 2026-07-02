@@ -1,0 +1,1 @@
+ALTER TABLE "resumeAnalysis" ALTER COLUMN "improvement_areas" DROP NOT NULL;

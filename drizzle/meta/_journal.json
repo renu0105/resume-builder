@@ -1,0 +1,34 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1782667250967,
+      "tag": "0000_futuristic_skaar",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1782679500544,
+      "tag": "0001_last_ted_forrester",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1782681218102,
+      "tag": "0002_rich_carlie_cooper",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1782856339588,
+      "tag": "0003_quiet_the_renegades",
+      "breakpoints": true
+    }
+  ]
+}
