@@ -1,21 +1,10 @@
 "use client";
-import { getAnalyzedResume } from "@/app/services/getData";
+import { getAnalyzedResume, getTemplates } from "@/app/services/getData";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-
-const values = [
-  { title: "Resume Score", value: 85, logo: "/logo/ats-analyzer.png" },
-  {
-    title: "Template Used",
-    value: 8,
-    logo: "/logo/templates.png",
-  },
-  { title: "AI conversation", value: 85, logo: "/logo/chat-bot.png" },
-  { title: "Interviews", value: 3, logo: "/logo/interview-prep.png" },
-];
 
 const features = [
   {
@@ -63,7 +52,13 @@ function Page() {
   const { data: session } = useSession();
   const router = useRouter();
   const [atsScore, setAtsScore] = useState<number | null>(null);
-  const [chatMessages, setChatMessages] = useState<string[]>([]);
+  const [suggestions, setSuggestions] = useState<
+    { title: string; description: string; priority?: string }[]
+  >([]);
+  const [templates, setTemplates] = useState<unknown[]>([]);
+  const [chatSessions, setChatSessions] = useState<
+    { id: number; title: string }[]
+  >([]);
 
   useEffect(() => {
     const fetchAnalyzedResume = async () => {
@@ -72,34 +67,70 @@ function Page() {
         if (resumeData?.score != null) {
           setAtsScore(Number(resumeData.score));
         }
+
+        if (resumeData?.suggestions) {
+          // The API stores suggestions as a JSON string, so parse it back
+          // into an array (tolerating the case where it's already an array).
+          const parsed =
+            typeof resumeData.suggestions === "string"
+              ? JSON.parse(resumeData.suggestions)
+              : resumeData.suggestions;
+          setSuggestions(Array.isArray(parsed) ? parsed : []);
+        }
       } catch (error) {
         console.error("Error fetching analyzed resume:", error);
       }
     };
 
-    const fetchChatMessages = async () => {
+    const fetchTemplates = async () => {
       try {
-        const chatMessages = await axios.get("/api/chat-bot");
-        console.log(chatMessages.data.chatMessages);
-        setChatMessages(chatMessages.data.chatMessages);
+        const templateList = await getTemplates();
+        setTemplates(templateList ?? []);
       } catch (error) {
-        console.error("Error fetching chat messages:", error);
+        console.error("Error fetching templates:", error);
+      }
+    };
+
+    const fetchChatSessions = async () => {
+      try {
+        const response = await axios.get("/api/chat-bot/chat-session");
+        setChatSessions(response.data.chatSessions ?? []);
+      } catch (error) {
+        console.error("Error fetching chat sessions:", error);
       }
     };
 
     fetchAnalyzedResume();
-    fetchChatMessages();
+    fetchTemplates();
+    fetchChatSessions();
   }, []);
 
+  const values = [
+    {
+      title: "Resume Score",
+      value: atsScore ?? 0,
+      logo: "/logo/ats-analyzer.png",
+    },
+    {
+      title: "Template Used",
+      value: templates.length,
+      logo: "/logo/templates.png",
+    },
+    {
+      title: "AI conversation",
+      value: chatSessions.length,
+      logo: "/logo/chat-bot.png",
+    },
+    { title: "Interviews", value: 3, logo: "/logo/interview-prep.png" },
+  ];
+
   return (
-    <div className="mx-auto w-full max-w-390 my-20 ml-32">
-      <div className="ml-44">
+    <div className="mx-auto w-full max-w-screen my-8">
+      <div className="lg:ml-44 ml-12">
         <p className="text-black mb-2 text-3xl font-semibold">
           Welcome Back,{session?.user?.name} 👋
         </p>
         <p>Let&apos;s continue building your career!</p>
-        <p>messages: {chatMessages.length}</p>
-        <p>resume score:{atsScore ?? "Loading..."}</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 justify-between w-full max-w-335 items-center mt-8">
           {values.map((value) => (
             <div
@@ -151,6 +182,27 @@ function Page() {
                 </button>
               </div>
             ))}
+          </div>
+
+          <div className="mt-12 w-full">
+            {suggestions.length > 0 ? (
+              <div>
+                <h1 className="text-xl my-2 font-semibold mt-4">
+                  Suggestions for improvement
+                </h1>
+                {suggestions.map((suggestion, index) => (
+                  <div
+                    key={index}
+                    className="text-gray-700 mb-2 bg-orange-100 p-6 rounded-lg"
+                  >
+                    <p className="font-semibold text-orange-400">
+                      {suggestion.title}
+                    </p>
+                    <p className="text-sm">{suggestion.description}</p>
+                  </div>
+                ))}
+              </div>
+            ) : null}
           </div>
         </div>
 

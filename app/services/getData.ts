@@ -22,16 +22,6 @@ export const GetResumeById = async (id: string) => {
   }
 };
 
-export const DeleteResumeById = async (id: string) => {
-  try {
-    const response = await axios.delete(`/api/resume/${id}`);
-    return response.data;
-  } catch (error) {
-    console.error("Error deleting resume data:", error);
-    throw error;
-  }
-};
-
 export const getAnalyzedResume = async () => {
   try {
     const response = await axios.get("/api/analyzer");
@@ -44,22 +34,12 @@ export const getAnalyzedResume = async () => {
   }
 };
 
-export const postResume = async (resumeData: string) => {
+export const getTemplates = async () => {
   try {
-    const response = await axios.post("/api/resume", resumeData);
-    return response.data;
+    const response = await axios.get("/api/templates");
+    return response.data.templates ?? [];
   } catch (error) {
-    console.error("Error posting resume data:", error);
-    throw error;
-  }
-};
-
-export const postAnalyzedResume = async (file: File) => {
-  try {
-    const response = await axios.post("/api/analyzer", file);
-    return response.data;
-  } catch (error) {
-    console.error("Error posting analyzed resume data:", error);
+    console.error("Error fetching templates:", error);
     throw error;
   }
 };

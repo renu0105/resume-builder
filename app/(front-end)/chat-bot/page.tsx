@@ -88,27 +88,27 @@ function Page() {
   };
 
   return (
-    <div className="flex flex-col items-center max-h-screen w-full max-w-7xl mx-auto ">
-      <div className="flex flex-col items-center w-full max-w-7xl ml-48">
-        <h1 className="text-2xl font-bold mt-20">AI Assistant</h1>
+    <div className="flex flex-col items-center max-h-screen lg:max-w-7xl w-xl mx-auto ">
+      <div className="flex flex-col items-center lg:max-w-7xl w-3xl my-4">
+        <h1 className="text-2xl font-bold">AI Assistant</h1>
         <p className="text-gray-600">Ask anything to the AI assistant!</p>
-        <div className="flex flex-col items-center gap-4 h-150">
+        <div className="flex flex-col items-center gap-4">
           <form
-            className="flex flex-col items-center gap-4 h-20"
+            className="flex flex-col items-center gap-4"
             onSubmit={(e) => {
               e.preventDefault();
               fetchAnswer(askedQuestion);
             }}
           >
             {message.length === 0 ? (
-              <div className="p-4 border border-gray-300 rounded-lg w-5xl max-w-7xl flex flex-col items-center gap-2  justify-center h-screen min-h-140 my-4 overflow-y-auto">
+              <div className="p-4 border border-gray-300 rounded-lg lg:w-5xl w-2xl max-w-7xl flex flex-col items-center gap-2  justify-center h-150 lg:h-140  overflow-y-auto my-4">
                 <p className="text-lg font-semibold">
                   Welcome to the AI Assistant!
                 </p>
                 <p>Ask any question and get an instant answer.</p>
               </div>
             ) : (
-              <div className="p-4 border border-gray-200 rounded-lg w-full max-w-7xl flex flex-col items-center gap-2 justify-start h-screen min-h-140 my-4 overflow-y-auto">
+              <div className="p-4 border border-gray-200 rounded-lg w-full max-w-7xl flex flex-col items-center gap-2 justify-start h-150 lg:h-140 my-4 overflow-y-auto">
                 {message.map((msg, index) => (
                   <div
                     key={index}
@@ -125,7 +125,7 @@ function Page() {
                 <div ref={bottomRef} />
               </div>
             )}
-            <div className="flex gap-2 w-screen max-w-5xl fixed bottom-2">
+            <div className="flex gap-2 lg:w-5xl w-2xl fixed bottom-2">
               <input
                 type="text"
                 placeholder="Type your question here..."

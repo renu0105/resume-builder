@@ -111,13 +111,13 @@ function Page() {
   };
 
   return (
-    <div className="flex flex-col items-center lg:m-24 lg:ml-48 max-h-screen">
-      <h1 className="text-3xl font-bold">Interview Preparation</h1>
+    <div className="flex flex-col items-center max-h-screen">
+      <h1 className="lg:text-3xl text-2xl font-bold">Interview Preparation</h1>
 
       <p className="font-serif text-gray-400 text-lg">
         Tell us about your role which you want to prepare for
       </p>
-      <div className="flex flex-row items-center justify-between gap-2 w-full max-w-5xl ">
+      <div className="flex flex-row items-center justify-between gap-2 lg:max-w-5xl w-3xl">
         <input
           type="text"
           placeholder="E.g. Software Engineer"
@@ -149,12 +149,12 @@ function Page() {
       {response.map((msg, index) => (
         <div
           key={index}
-          className={`p-4 w-5xl ml-48 my-4 rounded-lg ${msg.role === "user" ? "bg-neutral-500 self-end " : "bg-gray-200 self-start"}`}
+          className={`p-4 lg:w-5xl ml-48 my-4 rounded-lg ${msg.role === "user" ? "bg-neutral-500 self-end " : "bg-gray-200 self-start"}`}
         >
           {msg.content}
         </div>
       ))}
-      <div className="flex flex-row items-center m-4 fixed bottom-4 w-full max-w-5xl">
+      <div className="flex flex-row items-center m-4 fixed bottom-4 w-full lg:max-w-5xl">
         <input
           type="text"
           placeholder="Enter your answer..."
