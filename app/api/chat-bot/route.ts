@@ -1,5 +1,5 @@
 import { chatMessage, chatSession } from "@/app/db/schema";
-import { getUserId } from "@/lib/auth";
+import { getUserId, UnauthorizedError } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { and, asc, eq } from "drizzle-orm";
 import Groq from "groq-sdk";
@@ -99,6 +99,9 @@ export const POST = async (req: Request) => {
       { status: 200 },
     );
   } catch (err) {
+    if (err instanceof UnauthorizedError) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
     console.error("chat-bot POST error:", err);
     return NextResponse.json(
       { error: "Internal Server Error" },
@@ -136,6 +139,9 @@ export const GET = async (req: Request) => {
 
     return NextResponse.json({ chatMessages }, { status: 200 });
   } catch (err) {
+    if (err instanceof UnauthorizedError) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
     console.error("chat-bot GET error:", err);
     return NextResponse.json(
       { message: "Internal Server Error" },

@@ -184,7 +184,7 @@ function Page() {
             ))}
           </div>
 
-          <div className="mt-12 w-full">
+          <div className="mt-12 w-335">
             {suggestions.length > 0 ? (
               <div>
                 <h1 className="text-xl my-2 font-semibold mt-4">
@@ -213,7 +213,10 @@ function Page() {
             </h1>
             <p>Get instant answers to your career and interview questions.</p>
           </div>
-          <button className="bg-purple-800 text-white hover:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-500 p-2">
+          <button
+            className="bg-purple-800 text-white hover:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-500 p-2"
+            onClick={() => router.push("/chat-bot")}
+          >
             Chat now
           </button>
         </div>
