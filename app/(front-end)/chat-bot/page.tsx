@@ -74,12 +74,11 @@ function Page() {
       return;
     }
 
-    const recognition =
-      new (SpeechRecognitionCtor as new () => SpeechRecognition)();
+    const recognition = new SpeechRecognitionCtor() as SpeechRecognition;
 
     recognition.lang = "en-US";
 
-    recognition.onresult = (event) => {
+    recognition.onresult = (event: SpeechRecognitionEvent) => {
       const transcript = event.results[0][0].transcript;
       setAskedQuestion(transcript);
     };
