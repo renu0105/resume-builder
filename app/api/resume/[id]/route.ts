@@ -5,13 +5,19 @@ import { eq } from "drizzle-orm";
 
 export const GET = async (
   request: Request,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) => {
   try {
+    const { id } = await params;
+    const resumeId = Number(id);
+
+    if (Number.isNaN(resumeId)) {
+      return NextResponse.json({ error: "Invalid resume id" }, { status: 400 });
+    }
     const getResumeById = await db
       .select()
       .from(resume)
-      .where(eq(resume.id, parseInt(params.id)));
+      .where(eq(resume.id, resumeId));
 
     if (!getResumeById || getResumeById.length === 0) {
       return NextResponse.json({ error: "Resume not found" }, { status: 404 });
@@ -30,12 +36,19 @@ export const GET = async (
 
 export const DELETE = async (
   request: Request,
-  { params }: { params: { id: string } },
+  context: {
+    params: Promise<{ id: string }>;
+  },
 ) => {
   try {
+    const { id } = await context.params;
+    const resumeId = Number(id);
+    if (Number.isNaN(resumeId)) {
+      return NextResponse.json({ error: "Invalid resume id" }, { status: 400 });
+    }
     const DeletedResume = await db
       .delete(resume)
-      .where(eq(resume.id, parseInt(params.id)));
+      .where(eq(resume.id, parseInt(id)));
     return NextResponse.json({
       message: "Resume deleted successfully",
       resume: DeletedResume,

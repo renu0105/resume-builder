@@ -3,9 +3,9 @@ import { getUserId, UnauthorizedError } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { and, asc, eq } from "drizzle-orm";
 import Groq from "groq-sdk";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export const POST = async (req: Request) => {
+export const POST = async (req: NextRequest) => {
   try {
     const userId = await getUserId();
     const { question, sessionId } = await req.json();
@@ -110,7 +110,7 @@ export const POST = async (req: Request) => {
   }
 };
 
-export const GET = async (req: Request) => {
+export const GET = async (req: NextRequest) => {
   try {
     const userId = await getUserId();
 
