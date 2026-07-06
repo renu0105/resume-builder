@@ -11,37 +11,38 @@ export const authOptions: NextAuthOptions = {
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
-    CredentialsProvider({
-      name: "Credentials",
-      credentials: {
-        email: { label: "Email", type: "text" },
-        password: { label: "Password", type: "password" },
-      },
-      async authorize(credentials) {
-        if (!credentials || !credentials.email) {
-          throw new Error("Email is required");
-        }
+    //   CredentialsProvider({
+    //     name: "Credentials",
+    //     credentials: {
+    //       email: { label: "Email", type: "text" },
+    //       password: { label: "Password", type: "password" },
+    //     },
+    //     async authorize(credentials) {
+    //       if (!credentials || !credentials.email) {
+    //         throw new Error("Email is required");
+    //       }
 
-        const user = await db
-          .select()
-          .from(users)
-          .where(eq(users.email, credentials.email));
+    //       const user = await db
+    //         .select()
+    //         .from(users)
+    //         .where(eq(users.email, credentials.email));
 
-        if (user.length === 0) {
-          return null;
-        }
+    //       if (user.length === 0) {
+    //         return null;
+    //       }
 
-        // Here you would normally check the password, but for simplicity, we skip it.
-        // Ensure the returned user matches NextAuth's User shape (id must be a string)
-        const u = user[0];
-        return {
-          id: String(u.id),
-          name: u.name,
-          email: u.email,
-        };
-      },
-    }),
+    //       // Here you would normally check the password, but for simplicity, we skip it.
+    //       // Ensure the returned user matches NextAuth's User shape (id must be a string)
+    //       const u = user[0];
+    //       return {
+    //         id: String(u.id),
+    //         name: u.name,
+    //         email: u.email,
+    //       };
+    //     },
+    //   }),
   ],
+
   secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
     async signIn({ user }) {

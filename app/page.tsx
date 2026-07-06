@@ -1,17 +1,13 @@
-"use client";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { redirect } from "next/navigation";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/authOptions";
 
-function Page() {
-  const router = useRouter();
-  const session = useSession();
+export default async function Page() {
+  const session = await getServerSession(authOptions);
 
-  if (session?.status === "authenticated") {
-    router.push("/dashboard");
-  } else {
-    router.push("/hero-section");
+  if (session) {
+    redirect("/dashboard");
   }
-  return null;
-}
 
-export default Page;
+  redirect("/hero-section");
+}

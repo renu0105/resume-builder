@@ -29,6 +29,20 @@
       "when": 1782856339588,
       "tag": "0003_quiet_the_renegades",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1783347288184,
+      "tag": "0004_flaky_slipstream",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1783349028791,
+      "tag": "0005_wise_callisto",
+      "breakpoints": true
     }
   ]
 }
