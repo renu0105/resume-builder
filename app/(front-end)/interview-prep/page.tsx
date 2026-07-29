@@ -1,6 +1,7 @@
 "use client";
 import axios from "axios";
 import React, { useState } from "react";
+import { Toaster } from "react-hot-toast";
 import { toast } from "react-hot-toast/headless";
 
 const roles = [
@@ -111,24 +112,26 @@ function Page() {
   };
 
   return (
-    <div className="flex flex-col items-center max-h-screen">
-      <h1 className="lg:text-3xl text-2xl font-bold">Interview Preparation</h1>
+    <div className="flex flex-col items-center justify-center w-full p-4 ">
+      <h1 className="lg:text-3xl text-xl font-semibold">
+        Interview Preparation
+      </h1>
 
-      <p className="font-serif text-gray-400 text-lg">
+      <p className="font-serif text-gray-300 lg:text-lg text-sm w-full text-center my-1">
         Tell us about your role which you want to prepare for
       </p>
-      <div className="flex flex-row items-center justify-between gap-2 lg:max-w-5xl w-3xl">
+      <div className="flex flex-row items-center justify-between gap-2 w-full lg:max-w-5xl">
         <input
           type="text"
           placeholder="E.g. Software Engineer"
           value={role}
           onChange={(e) => setRole(e.target.value)}
-          className="border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring focus:ring-gray-500 w-3xl"
+          className="border border-gray-300 rounded p-2 focus:outline-none focus:ring focus:ring-gray-500 "
         />
         <select
           value={role}
           onChange={(e) => setRole(e.target.value)}
-          className="rounded border p-2 font-normal w-44"
+          className="rounded border p-2 font-normal w-full"
         >
           <option value="">Select a role</option>
           {roles.map((r) => (
@@ -139,8 +142,8 @@ function Page() {
         </select>
         <button
           onClick={startInterview}
-          className="bg-blue-500 text-white p-2 rounded-lg w-20 my-4
-      hover:bg-blue-600"
+          className="bg-purple-500 text-white p-2 rounded-lg w-20 my-4
+          hover:bg-purple-600"
         >
           Submit
         </button>
@@ -149,43 +152,33 @@ function Page() {
       {response.map((msg, index) => (
         <div
           key={index}
-          className={`p-4 lg:w-5xl ml-48 my-4 rounded-lg ${msg.role === "user" ? "bg-neutral-500 self-end " : "bg-gray-200 self-start"}`}
+          className={`p-4 lg:w-4xl my-4 w-84 rounded-lg ${msg.role === "user" ? "bg-neutral-400 self-end " : "bg-gray-200 self-start"}`}
         >
           {msg.content}
         </div>
       ))}
-      <div className="flex flex-row items-center m-4 fixed bottom-4 w-full lg:max-w-5xl">
+      <div className="flex flex-row items-center m-2 fixed bottom-4 w-full lg:max-w-5xl border border-gray-400 p-4 rounded-2xl justify-between">
         <input
           type="text"
           placeholder="Enter your answer..."
           value={answer}
+          className="bg-transparent focus:outline-none w-full text-gray-700 placeholder-gray-400"
           onChange={(e) => setAnswer(e.target.value)}
-          className="border border-gray-300 rounded-lg p-4 focus:outline-none focus:ring focus:ring-gray-500 w-5xl border-r-0"
         />
-        <button
-          type="button"
-          onClick={startListening}
-          className="border border-gray-300 p-4 rounded-lg hover:bg-gray-100"
-        >
-          🎤
-        </button>
-        <button
-          onClick={fetchData}
-          className="bg-blue-500 text-white p-4 rounded-lg hover:bg-blue-600"
-        >
-          Send
-        </button>
-        <button
-          onClick={() => {
-            setRole("");
-            setSessionId(null);
-            setResponse([]);
-            setAnswer("");
-          }}
-          className="bg-gray-500 text-white p-4 rounded-lg hover:bg-gray-600"
-        >
-          Reset
-        </button>
+        <Toaster />
+
+        <div className="flex gap-2">
+          <button type="button" onClick={startListening}>
+            🎤
+          </button>
+          <button
+            disabled={!role.trim() || !answer.trim()}
+            onClick={fetchData}
+            className="bg-purple-500 text-white p-2 rounded-lg hover:bg-purple-600"
+          >
+            Send
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -106,58 +106,69 @@ function Page() {
   };
 
   return (
-    <div className="flex flex-col items-center max-h-screen lg:w-7xl w-2xl mx-auto my-4 rounded-lg p-4 m-10 bg-gray-100">
-      <div className=" lgw-7xl w-xl flex flex-col items-center p-8">
+    <div className="flex justify-center  min-h-screen m-4">
+      <div className="w-full flex flex-col items-center pt-4 rounded-2xl lg:w-3xl md:w-2xl">
         <h1 className=" text-xl lg:text-3xl font-bold mb-2">
           Analyze Your Resume
         </h1>
-        <p className="text-md text-gray-400 mb-8 text-center lg:max-w-2xl w-xl">
+        <p className="md:text-md text-sm text-gray-400 mb-8 text-center w-full">
           Analyze your resume with AI and get personalized feedback to improve
           your chances of landing your dream job.
         </p>
 
         {!result ? (
-          <div
-            className="text-lg text-gray-400 border rounded-4xl border-dashed h-100 lg:w-5xl w-xl text-center flex flex-col items-center justify-center gap-2"
-            onDragOver={(e) => {
-              e.preventDefault();
-            }}
-            onDrop={(e) => {
-              e.preventDefault();
-              const droppedFile = e.dataTransfer.files?.[0];
-              if (droppedFile) {
-                setFile(droppedFile);
-              }
-            }}
-            onClick={() => {
-              if (fileInputRef.current) {
-                fileInputRef.current.click();
-              }
-            }}
-          >
-            <input
-              type="file"
-              ref={fileInputRef}
-              accept=".pdf,.docx"
-              onChange={handleChange}
-              className="hidden"
-              placeholder="Drag and drop your file here or click to upload"
-            />
-            {file ? (
-              <>
-                <p>{file.name}</p>
-                <p>File size: {Math.round(file.size / 1024)} KB</p>
-              </>
-            ) : (
-              <>
-                <p>Drag and drop your file here</p>
-                <p>Supported formats: PDF, DOCX</p>
-              </>
-            )}
+          <div className="flex flex-col items-center gap-4 w-full max-w-5xl p-4 rounded-lg text-gray-400">
+            <div
+              className="border rounded-4xl border-dashed h-120 md:h-100 lg:w-3xl md:w-2xl w-sm text-center flex flex-col items-center justify-center gap-2"
+              onDragOver={(e) => {
+                e.preventDefault();
+              }}
+              onDrop={(e) => {
+                e.preventDefault();
+                const droppedFile = e.dataTransfer.files?.[0];
+                if (droppedFile) {
+                  setFile(droppedFile);
+                }
+              }}
+              onClick={() => {
+                if (fileInputRef.current) {
+                  fileInputRef.current.click();
+                }
+              }}
+            >
+              <input
+                type="file"
+                ref={fileInputRef}
+                accept=".pdf,.docx"
+                onChange={handleChange}
+                className="hidden"
+                placeholder="Drag and drop your file here or click to upload"
+              />
+              {file ? (
+                <>
+                  <p>{file.name}</p>
+                  <p>File size: {Math.round(file.size / 1024)} KB</p>
+                </>
+              ) : (
+                <>
+                  <p>Drag and drop your file here</p>
+                  <p>Supported formats: PDF, DOCX</p>
+                </>
+              )}
+            </div>
+            <button
+              className="bg-purple-500 hover:bg-purple-700 text-white font-semibold p-4 rounded disabled:opacity-60 w-full"
+              onClick={() => handleAnalyze(file)}
+              disabled={status === "loading"}
+            >
+              {status === "unauthenticated"
+                ? "Sign in to Analyze"
+                : "Analyze Resume"}
+            </button>
           </div>
         ) : (
           <div className="flex flex-col items-center gap-4 w-full max-w-5xl h-170">
-            <div className="w-150 h-75">
+            <div className="md:w-150 md:h-75 h-50 w-50">
               <GaugeComponent
                 value={atsScore}
                 arc={{
@@ -201,26 +212,14 @@ function Page() {
                 ))}
               </div>
             </div>
+            <button
+              className="bg-gray-500 hover:bg-gray-700 text-white font-semibold p-4 rounded w-full text-center"
+              onClick={handleReset}
+            >
+              Reset
+            </button>
           </div>
         )}
-        <Toaster />
-        <div className="flex flex-row gap-4 mt-8 lg:w-5xl justify-center my-4 bottom-0 w-xl ">
-          <button
-            className="bg-blue-500 hover:bg-blue-700 text-white font-semibold p-4 rounded w-44 disabled:opacity-60 lg:w-[50%]"
-            onClick={() => handleAnalyze(file)}
-            disabled={status === "loading"}
-          >
-            {status === "unauthenticated"
-              ? "Sign in to Analyze"
-              : "Analyze Resume"}
-          </button>
-          <button
-            className="bg-gray-500 hover:bg-gray-700 text-white font-semibold p-4 rounded lg:w-[50%] w-44 text-center"
-            onClick={handleReset}
-          >
-            Reset
-          </button>
-        </div>
       </div>
     </div>
   );

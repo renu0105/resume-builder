@@ -17,7 +17,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full" suppressHydrationWarning>
       <head></head>
-      <body className="min-h-full flex flex-col">
+      <body className="flex flex-col">
         <Providers>
           <Nav />
           <Toaster />

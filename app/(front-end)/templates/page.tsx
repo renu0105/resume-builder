@@ -189,11 +189,11 @@ export default function ResumeBuilder() {
   }, [formData, experience, projects, template]);
 
   return (
-    <div className="grid max-w-7xl gap-8 mx-auto px-20 my-8 lg:grid-cols-2 ">
+    <div className="grid max-w-7xl gap-8 mx-auto md:px-20 px-4 my-8 lg:grid-cols-2 ">
       {/* ---- Form ---- */}
       <div className="flex flex-col gap-4">
-        <div className="flex flex-row justify-between items-center gap-2">
-          <h1 className="text-3xl font-bold">Resume Builder</h1>
+        <div className="flex md:flex-row flex-col justify-between items-center gap-2">
+          <h1 className="md:text-3xl text-lg font-bold">Resume Builder</h1>
 
           <label className="flex flex-row gap-2 items-center text-md font-medium">
             Template :

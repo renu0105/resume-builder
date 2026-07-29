@@ -3,7 +3,6 @@ import GoogleProvider from "next-auth/providers/google";
 import { db } from "@/lib/db";
 import { eq } from "drizzle-orm";
 import { users } from "@/app/db/schema";
-import CredentialsProvider from "next-auth/providers/credentials";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -44,25 +43,32 @@ export const authOptions: NextAuthOptions = {
   ],
 
   secret: process.env.NEXTAUTH_SECRET,
+  pages: {
+    signIn: "/signin",
+  },
   callbacks: {
     async signIn({ user }) {
-      if (!user.email) {
-        return false;
+      try {
+        const existing = await db
+          .select()
+          .from(users)
+          .where(eq(users.email, user.email!));
+
+        console.log(existing);
+
+        if (existing.length === 0) {
+          await db.insert(users).values({
+            name: user.name!,
+            email: user.email!,
+          });
+        }
+
+        return true;
+      } catch (e) {
+        console.error("DATABASE ERROR:");
+        console.error(e);
+        throw e;
       }
-
-      const existing = await db
-        .select()
-        .from(users)
-        .where(eq(users.email, user.email!));
-
-      if (existing.length === 0) {
-        await db.insert(users).values({
-          name: user.name!,
-          email: user.email!,
-        });
-      }
-
-      return true;
     },
 
     async jwt({ token }) {

@@ -87,71 +87,64 @@ function Page() {
   };
 
   return (
-    <div className="flex flex-col items-center max-h-screen lg:max-w-7xl w-xl mx-auto ">
-      <div className="flex flex-col items-center lg:max-w-7xl w-3xl my-4">
-        <h1 className="text-2xl font-bold">AI Assistant</h1>
-        <p className="text-gray-600">Ask anything to the AI assistant!</p>
-        <div className="flex flex-col items-center gap-4">
-          <form
-            className="flex flex-col items-center gap-4"
-            onSubmit={(e) => {
-              e.preventDefault();
-              fetchAnswer(askedQuestion);
-            }}
-          >
-            {message.length === 0 ? (
-              <div className="p-4 border border-gray-300 rounded-lg lg:w-5xl w-2xl max-w-7xl flex flex-col items-center gap-2  justify-center h-150 lg:h-140  overflow-y-auto my-4">
-                <p className="text-lg font-semibold">
-                  Welcome to the AI Assistant!
-                </p>
-                <p>Ask any question and get an instant answer.</p>
+    <div className="flex flex-col items-center w-full my-4 md:my-2">
+      <h1 className="lg:text-2xl text-lg font-bold">AI Assistant</h1>
+      <p className="text-neutral-500">Ask anything to the AI assistant!</p>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          fetchAnswer(askedQuestion);
+        }}
+        className="w-full lg:w-5xl"
+      >
+        {message.length === 0 ? (
+          <div className="border border-gray-300 rounded-lg flex flex-col items-center gap-2 justify-center h-150 lg:h-130  overflow-y-auto my-4 mx-4">
+            <p className="text-lg font-semibold">
+              Welcome to the AI Assistant!
+            </p>
+            <p>Ask any question and get an instant answer.</p>
+          </div>
+        ) : (
+          <div className="p-4 border border-gray-200 rounded-lg w-full max-w-md md:max-w-3xl lg:max-w-7xl flex flex-col items-center gap-2 justify-start h-150 lg:h-130 my-4 overflow-y-auto mx-auto">
+            {message.map((msg, index) => (
+              <div
+                key={index}
+                className={`p-4 rounded-lg ${msg.role === "user" ? "bg-neutral-500 text-white self-end" : "bg-gray-200 self-start"}`}
+              >
+                {msg.content}
               </div>
-            ) : (
-              <div className="p-4 border border-gray-200 rounded-lg w-full max-w-7xl flex flex-col items-center gap-2 justify-start h-150 lg:h-140 my-4 overflow-y-auto">
-                {message.map((msg, index) => (
-                  <div
-                    key={index}
-                    className={`p-4 rounded-lg ${msg.role === "user" ? "bg-neutral-500 text-white self-end" : "bg-gray-200 self-start"}`}
-                  >
-                    {msg.content}
-                  </div>
-                ))}
-                {loading && (
-                  <div className="p-4 rounded-lg bg-gray-200 self-start text-gray-500 animate-pulse">
-                    Thinking...
-                  </div>
-                )}
-                <div ref={bottomRef} />
+            ))}
+            {loading && (
+              <div className="p-4 rounded-lg bg-gray-200 self-start text-gray-500 animate-pulse">
+                Thinking...
               </div>
             )}
-            <div className="flex gap-2 lg:w-5xl w-2xl fixed bottom-2">
-              <input
-                type="text"
-                placeholder="Type your question here..."
-                className="border border-gray-300 rounded-lg w-full focus:outline-none p-4 border-r-0 disabled:opacity-60"
-                value={askedQuestion}
-                onChange={(e) => setAskedQuestion(e.target.value)}
-                disabled={loading}
-              />
-              <button
-                type="button"
-                onClick={startListening}
-                disabled={loading}
-                className="border  border-r rounded-lg border-gray-300 p-4 bg-white hover:bg-gray-100 disabled:opacity-60"
-              >
-                🎤
-              </button>
-              <button
-                className="bg-blue-500 hover:bg-blue-700 text-white font-semibold p-2 rounded-lg disabled:opacity-60"
-                type="submit"
-                disabled={loading || !askedQuestion.trim()}
-              >
-                {loading ? "..." : "Submit"}
-              </button>
-            </div>
-          </form>
+            <div ref={bottomRef} />
+          </div>
+        )}
+        <div className="flex fixed bottom-2  border border-gray-300 p-2 rounded-2xl justify-between w-sm md:w-200 lg:w-250 bg-white md:m-2 m-4">
+          <input
+            type="text"
+            placeholder="Type your question here..."
+            value={askedQuestion}
+            onChange={(e) => setAskedQuestion(e.target.value)}
+            disabled={loading}
+            className="bg-transparent focus:outline-none w-full text-gray-700 placeholder-gray-400"
+          />
+          <div className="flex gap-2">
+            <button type="button" onClick={startListening} disabled={loading}>
+              🎤
+            </button>
+            <button
+              type="submit"
+              disabled={loading || !askedQuestion.trim()}
+              className="bg-purple-700 hover:bg-purple-900 text-white font-semibold p-2 rounded  text-center"
+            >
+              {loading ? "..." : "Submit"}
+            </button>
+          </div>
         </div>
-      </div>
+      </form>
     </div>
   );
 }

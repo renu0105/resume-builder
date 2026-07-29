@@ -125,19 +125,19 @@ function Page() {
   ];
 
   return (
-    <div className="mx-auto w-full max-w-screen my-8">
-      <div className="lg:ml-44 ml-12">
-        <p className="text-black mb-2 text-3xl font-semibold">
+    <div className="mx-auto w-full max-w-screen my-8 lg:ml-32 ml-0">
+      <div className=" px-4 md:px-8">
+        <p className="text-black mb-2 text-xl md:text-3xl font-semibold">
           Welcome Back,{session?.user?.name} 👋
         </p>
         <p>Let&apos;s continue building your career!</p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 justify-between w-full max-w-335 items-center mt-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 justify-between w-full max-w-335 items-center mt-8">
           {values.map((value) => (
             <div
               key={value.title}
-              className="text-gray-700 border border-gray-200 p-2 rounded-lg"
+              className="text-gray-700 border border-gray-300 p-2 rounded-lg md:w-full"
             >
-              <div className="flex flex-row items-center gap-2">
+              <div className="flex flex-row items-center gap-2 ">
                 <Image
                   src={value.logo}
                   alt={value.title}
@@ -153,17 +153,19 @@ function Page() {
           ))}
         </div>
 
-        <div className="mt-4 p-4">
-          <p className="text-xl my-2 font-semibold">Quick Actions</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 justify-between w-full max-w-335 items-center">
+        <div className="my-6">
+          <p className="text-xl my-2 font-semibold my-4">Quick Actions</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 md:gap-4 gap-8 justify-between w-full max-w-300 items-center">
             {features.map((feature) => (
               <div
                 key={feature.name}
                 className={`p-4 rounded-lg ${feature.bgColor} w-full shadow-lg`}
               >
-                <div className="flex flex-row h-40">
+                <div className="flex flex-row md:h-40 h-36">
                   <div className="flex-1">
-                    <h1 className="text-lg font-bold h-12">{feature.name}</h1>
+                    <h1 className="text-lg font-semibold mb-4">
+                      {feature.name}
+                    </h1>
                     <p className="h-32 text-sm">{feature.description}</p>
                   </div>
                   <Image
@@ -171,7 +173,7 @@ function Page() {
                     alt={feature.name}
                     width={200}
                     height={200}
-                    className="object-center h-36 w-36 "
+                    className="object-center mdh-36 md:w-36 h-30 w-30"
                   />
                 </div>
                 <button
@@ -184,10 +186,10 @@ function Page() {
             ))}
           </div>
 
-          <div className="mt-12 w-335">
+          <div className="mt-12 max-w-335 w-full">
             {suggestions.length > 0 ? (
               <div>
-                <h1 className="text-xl my-2 font-semibold mt-4">
+                <h1 className="text-xl my-4 font-semibold mt-4">
                   Suggestions for improvement
                 </h1>
                 {suggestions.map((suggestion, index) => (
@@ -206,9 +208,9 @@ function Page() {
           </div>
         </div>
 
-        <div className="mt-8 p-4 rounded-lg shadow-lg bg-purple-200 flex justify-between items-center w-full max-w-335">
+        <div className="mt-8 p-4 rounded-lg shadow-lg bg-purple-200 flex md:flex-row flex-col md:justify-between md:items-center gap-4 w-full max-w-335">
           <div>
-            <h1 className="text-lg font-bold">
+            <h1 className="text-lg font-bold mb-2">
               Need help? Ask our AI assistant!
             </h1>
             <p>Get instant answers to your career and interview questions.</p>
