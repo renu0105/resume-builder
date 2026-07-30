@@ -121,7 +121,9 @@ function Nav() {
             )}
           </>
         ) : (
-          <div className="text-lg font-medium flex lg:flex-row flex-col gap-4 items-start lg:h-fit h-200 px-4 lg:w-5xl lg:items-center  bg-gray-200 lg:bg-transparent lg:bg-none justify-between">
+          <div
+            className={`text-lg font-medium flex lg:flex-row flex-col gap-4 items-start lg:h-fit h-200 px-4 lg:w-5xl lg:items-center  lg:bg-transparent lg:bg-none justify-between ${resolvedTheme === "dark" ? "text-gray-100 bg-neutral-800" : "text-neutral-800 bg-white "} `}
+          >
             <div className="flex lg:flex-row flex-col gap-8 lg:w-400 my-4 lg:justify-center">
               {defaultLinks.map((link) => (
                 <Link
