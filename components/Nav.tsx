@@ -121,7 +121,7 @@ function Nav() {
             )}
           </>
         ) : (
-          <div className="text-lg font-medium flex lg:flex-row flex-col gap-4 items-start lg:h-fit h-250 px-4 lg:w-5xl lg:items-center justify-between bg-gray-100 lg:bg-transparent lg:bg-none text-gray-400">
+          <div className="text-lg font-medium flex lg:flex-row flex-col gap-4 items-start lg:h-fit h-200 px-4 lg:w-5xl lg:items-center  bg-gray-200 lg:bg-transparent lg:bg-none justify-between">
             <div className="flex lg:flex-row flex-col gap-8 lg:w-400 my-4 lg:justify-center">
               {defaultLinks.map((link) => (
                 <Link
@@ -135,7 +135,7 @@ function Nav() {
             </div>
             <button
               onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
-              className="text-lg font-semibold rounded w-44 p-4 transition-colors duration-200 bg-purple-600 text-white hover:bg-purple-900 text-center mb-4"
+              className="text-lg font-semibold rounded w-44 p-4 transition-colors duration-200 bg-purple-600 text-white hover:bg-purple-900 text-center mb-12 lg:mb-0"
             >
               Sign in
             </button>
