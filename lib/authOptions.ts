@@ -9,6 +9,15 @@ export const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      // Force Google to show the account chooser on every sign-in. Without this,
+      // Google silently reuses the browser's active account (skipping the
+      // picker) once the app has been authorized, so users can never switch
+      // accounts.
+      authorization: {
+        params: {
+          prompt: "select_account",
+        },
+      },
     }),
     //   CredentialsProvider({
     //     name: "Credentials",
@@ -43,9 +52,9 @@ export const authOptions: NextAuthOptions = {
   ],
 
   secret: process.env.NEXTAUTH_SECRET,
-  pages: {
-    signIn: "/signin",
-  },
+  // No custom `pages.signIn` — there is no /signin route, so pointing NextAuth
+  // at it turned every auth error into a 404. Falling back to NextAuth's
+  // built-in pages means errors land on /api/auth/error (readable) instead.
   callbacks: {
     async signIn({ user }) {
       // Google always gives us a verified email; without one we can't key a user.
