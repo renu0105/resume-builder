@@ -1,5 +1,4 @@
 "use client";
-import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import { BsGraphDown } from "react-icons/bs";
 import { FaArrowRight, FaMicrophone, FaRobot } from "react-icons/fa6";
@@ -88,29 +87,32 @@ const additionalFeatures = [
 
 export default function Home() {
   return (
-    <div className="flex flex-col lg:items-center lg:justify-center gap-6 mx-auto lg:my-20 p-4  my-6 lg:min-h-screen">
-      <div className="flex flex-col items-center justify-center gap-6 mx-auto">
-        <p className="text-md text-purple-400 border border-purple-400 bg-purple-100 rounded-2xl px-4 py-1">
+    <div className="mx-auto flex w-full max-w-7xl flex-col items-center gap-16 px-4 py-12 sm:px-6 lg:gap-24 lg:px-8 lg:py-20">
+      <div className="flex flex-col items-center justify-center gap-6 text-center">
+        <p className="rounded-full border border-purple-300 bg-purple-100 px-4 py-1.5 text-sm font-medium text-purple-600 dark:border-purple-500/40 dark:bg-purple-500/10 dark:text-purple-300">
           AI-powered resume analysis & interview prep
         </p>
-        <h1 className="text-3xl lg:text-6xl md:text-5xl font-bold text-purple-400 text-center w-full max-w-4xl font-sans">
-          Build Better Resumes.
-          <strong className="text-gray-800">Crack More Interviews. </strong>
+        <h1 className="max-w-4xl text-4xl font-bold leading-tight text-purple-500 md:text-5xl lg:text-6xl">
+          Build Better Resumes.{" "}
+          <span className="text-gray-800 dark:text-white">
+            Crack More Interviews.
+          </span>
         </h1>
-        <p className="text-lg lg:text-xl text-gray-400 text-center max-w-5xl">
+        <p className="max-w-2xl text-lg text-gray-600 lg:text-xl dark:text-gray-300">
           Use AI to create standout resumes, identify weaknesses in your CV, and
-          practice real interview questions tailored to your target role.Talk
-          with AI Assistant to improve chances of landing your dream job.
+          practice real interview questions tailored to your target role. Talk
+          with the AI Assistant to improve your chances of landing your dream
+          job.
         </p>
-        <div className="flex flex-col md:flex-row gap-6 text-lg">
+        <div className="mt-2 flex w-full flex-col gap-4 sm:w-auto sm:flex-row">
           <button
-            className="bg-purple-500 text-white p-4 rounded-3xl w-64 hover:bg-purple-600 transition-colors duration-200 cursor-pointer"
+            className="w-full cursor-pointer rounded-full bg-purple-500 px-8 py-4 text-lg font-semibold text-white shadow-md transition-colors duration-200 hover:bg-purple-600 sm:w-60"
             onClick={() => toast("Login required to access this feature!")}
           >
             ✈️ Explore Templates
           </button>
           <button
-            className="bg-gray-500 text-white p-4 rounded-3xl w-64 hover:bg-gray-600 transition-colors duration-200 cursor-pointer"
+            className="w-full cursor-pointer rounded-full border border-gray-300 bg-transparent px-8 py-4 text-lg font-semibold text-gray-700 transition-colors duration-200 hover:bg-gray-100 sm:w-60 dark:border-neutral-700 dark:text-gray-200 dark:hover:bg-neutral-800"
             onClick={() => toast("Login required to access this feature!")}
           >
             Get Started
@@ -118,26 +120,26 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 justify-between w-full max-w-365 items-center mt-8 text-purple-500">
+      <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
         {secure.map((value) => (
           <div
             key={value.title}
-            className="flex flex-row items-center gap-4 p-4 w-70"
+            className="flex flex-row items-center gap-3 rounded-xl border border-gray-100 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-900"
           >
-            <p className={`text-4xl`}>{value.icon}</p>
-            <div>
-              <h3 className="text-lg font-semibold">{value.title}</h3>
-            </div>
+            <p className="text-3xl text-purple-500">{value.icon}</p>
+            <h3 className="text-base font-semibold text-gray-800 dark:text-gray-100">
+              {value.title}
+            </h3>
           </div>
         ))}
       </div>
 
       <section
         id="about"
-        className="flex lg:flex-row flex-col items-center justify-center lg:mt-20 p-4 md:text-xl gap-6 lg:gap-30 dark:text-gray-500 text-lg"
+        className="flex w-full flex-col items-start justify-center gap-10 text-lg text-gray-600 md:text-xl lg:flex-row lg:gap-16 dark:text-gray-300"
       >
-        <div className=" space-x-0 space-y-4 lg:w-180">
-          <h1 className="text-xl lg:text-5xl font-bold text-purple-400">
+        <div className="flex-1 space-y-4 lg:max-w-xl">
+          <h1 className="text-3xl font-bold text-purple-500 lg:text-5xl">
             About Us
           </h1>
 
@@ -159,18 +161,24 @@ export default function Home() {
             with features to help job seekers achieve their career goals.
           </p>
         </div>
-        <div>
-          <h1 className="text-purple-300">Why Choose Resume Nova?</h1>
+        <div className="flex-1 space-y-4">
+          <h1 className="text-2xl font-semibold text-purple-400">
+            Why Choose Resume Nova?
+          </h1>
           {additionalFeatures.map((feature) => (
             <div
               key={feature.title}
-              className="rounded-xl p-4 my-4 border border-purple-600/70 lg:w-150"
+              className="rounded-xl border border-purple-600/40 p-5 transition-colors hover:border-purple-600 dark:border-purple-500/30 dark:hover:border-purple-500"
             >
-              <div className="flex flex-row items-center ">
-                <p className="text-lg">{feature.logo}</p>
-                <p className="text-lg ml-2">{feature.title}</p>
+              <div className="flex flex-row items-center gap-2">
+                <span className="text-xl text-purple-500">{feature.logo}</span>
+                <p className="text-lg font-medium text-gray-800 dark:text-gray-100">
+                  {feature.title}
+                </p>
               </div>
-              <p className="text-sm text-gray-400 mx-6">{feature.desc}</p>
+              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                {feature.desc}
+              </p>
             </div>
           ))}
         </div>
@@ -178,29 +186,31 @@ export default function Home() {
 
       <section
         id="features"
-        className="flex flex-col items-center justify-center gap-4 mt-4 p-4"
+        className="flex w-full flex-col items-center justify-center gap-6"
       >
-        <div className="text-2xl font-2xl font-bold flex flex-row items-center gap-2">
+        <div className="flex flex-row items-center gap-2 text-center text-2xl font-bold text-gray-800 dark:text-gray-100">
           Everything You Need to Land More Interviews
-          <HiOutlineSparkles className="text-purple-500 ml-2" />
+          <HiOutlineSparkles className="text-purple-500" />
         </div>
-        <p className="w-44 border-b-4 border-purple-600 mb-4"></p>
-        <div className="grid grid-cols-1  md:grid-cols-2 lg:grid-cols-5 gap-4 justify-between w-full lg:max-w-8xl items-center ">
+        <span className="mb-4 block h-1 w-44 rounded-full bg-purple-600" />
+        <div className="grid w-full grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
           {functionalities.map((functionality) => (
             <div
               key={functionality.name}
-              className="flex flex-col gap-2 rounded-2xl border border-gray-200 p-6 shadow-lg lg:w-70 w-full items-center"
+              className="flex flex-col items-center gap-3 rounded-2xl border border-gray-200 bg-white p-6 text-center shadow-sm transition-shadow hover:shadow-lg dark:border-neutral-800 dark:bg-neutral-900"
             >
               <p
-                className={`text-4xl ${functionality.iconColor} ${functionality.iconBgColor} rounded-xl p-4 w-fit`}
+                className={`text-4xl ${functionality.iconColor} ${functionality.iconBgColor} w-fit rounded-xl p-4`}
               >
                 {functionality.icon}
               </p>
-              <h3 className="text-lg font-bold">{functionality.name}</h3>
-              <p className="text-sm text-gray-500 text-center">
+              <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100">
+                {functionality.name}
+              </h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
                 {functionality.description}
               </p>
-              <p className="text-purple-600 text-lg font-semibold flex flex-row items-center gap-2 hover:underline cursor-pointer mt-2">
+              <p className="mt-auto flex cursor-pointer flex-row items-center gap-2 pt-2 text-base font-semibold text-purple-600 hover:underline dark:text-purple-400">
                 Learn More
                 <FaArrowRight />
               </p>

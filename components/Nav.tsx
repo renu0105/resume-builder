@@ -71,7 +71,7 @@ function Nav() {
                   <Link
                     key={link.name}
                     href={link.href}
-                    className="text-neutral-800 border-b-2 border-transparent hover:border-purple-600 py-2"
+                    className="border-b-2 border-transparent py-2 text-neutral-800 transition-colors hover:border-purple-600 hover:text-purple-600 dark:text-gray-200 dark:hover:text-purple-400"
                   >
                     {link.name}
                   </Link>
@@ -148,9 +148,19 @@ function Nav() {
         onClick={() => {
           setTheme(resolvedTheme === "dark" ? "light" : "dark");
         }}
-        className="text-lg font-medium cursor-pointer mx-2 md:my-0 my-4"
+        aria-label={
+          resolvedTheme === "dark"
+            ? "Switch to light mode"
+            : "Switch to dark mode"
+        }
+        title={
+          resolvedTheme === "dark"
+            ? "Switch to light mode"
+            : "Switch to dark mode"
+        }
+        className="mx-2 my-4 flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-white text-lg shadow-sm transition-colors duration-200 hover:bg-gray-100 md:my-0 dark:border-neutral-700 dark:bg-neutral-800 dark:hover:bg-neutral-700"
       >
-        {resolvedTheme === "dark" ? "☀️ " : "🌙 "}
+        {resolvedTheme === "dark" ? "☀️" : "🌙"}
       </button>
     </div>
   );

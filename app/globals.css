@@ -1,1 +1,56 @@
 @import "tailwindcss";
+
+/* Tailwind v4's `dark:` variant defaults to the OS `prefers-color-scheme`
+   media query. next-themes toggles a `.dark` class on <html> instead, so we
+   redefine the variant to follow that class — otherwise the moon button would
+   never change any `dark:` utility. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
+}
+
+/* Light is the default. The .dark overrides only apply once the moon toggle
+   adds the class, so a fresh visit is always white. */
+:root {
+  --background: #ffffff;
+  --foreground: #1f2937;
+  --surface: #ffffff;
+  --border: #e5e7eb;
+}
+
+.dark {
+  --background: #0b0e14;
+  --foreground: #e5e7eb;
+  --surface: #151a23;
+  --border: #232a36;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease;
+}
+
+/* Subtle, theme-aware scrollbar so dark mode doesn't show a bright track. */
+* {
+  scrollbar-color: var(--border) transparent;
+}
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background-color: var(--border);
+  border-radius: 9999px;
+}
