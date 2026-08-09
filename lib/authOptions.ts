@@ -48,27 +48,29 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async signIn({ user }) {
+      // Google always gives us a verified email; without one we can't key a user.
+      if (!user.email) return false;
+
       try {
-        const existing = await db
-          .select()
-          .from(users)
-          .where(eq(users.email, user.email!));
-
-        console.log(existing);
-
-        if (existing.length === 0) {
-          await db.insert(users).values({
-            name: user.name!,
-            email: user.email!,
-          });
-        }
-
-        return true;
+        // Idempotent create-if-missing. onConflictDoNothing makes this safe for
+        // every account (including concurrent first sign-ins) instead of only
+        // the accounts that already have a row — the old code threw on the
+        // insert path, which locked out every user but the first.
+        await db
+          .insert(users)
+          .values({
+            name: user.name ?? user.email,
+            email: user.email,
+          })
+          .onConflictDoNothing({ target: users.email });
       } catch (e) {
-        console.error("DATABASE ERROR:");
-        console.error(e);
-        throw e;
+        // Recording the user failed (e.g. a transient DB error). Log it, but
+        // don't rethrow — a bookkeeping failure must not deny an otherwise
+        // valid sign-in for everyone.
+        console.error("signIn: failed to upsert user", e);
       }
+
+      return true;
     },
 
     async jwt({ token }) {
