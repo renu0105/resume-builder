@@ -2,8 +2,9 @@
 import axios from "axios";
 import React, { useState } from "react";
 import GaugeComponent from "react-gauge-component";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 import { signIn, useSession } from "next-auth/react";
+import { FiFileText, FiUploadCloud, FiX } from "react-icons/fi";
 
 type Suggestion = {
   title: string;
@@ -35,12 +36,44 @@ function parseList<T>(value: string | T[] | undefined | null): T[] {
   return [];
 }
 
+// Matches the badge palette used on the dashboard. The model returns a
+// free-form priority string, so anything unrecognised falls back to "low".
+const priorityStyles: Record<string, string> = {
+  high: "bg-rose-100 text-rose-700 dark:bg-rose-500/15 dark:text-rose-300",
+  medium:
+    "bg-amber-100 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",
+  low: "bg-sky-100 text-sky-700 dark:bg-sky-500/15 dark:text-sky-300",
+};
+
+function scoreVerdict(score: number) {
+  if (score >= 80)
+    return {
+      label: "Strong",
+      tone: "text-emerald-600 dark:text-emerald-400",
+      note: "Your resume should pass most ATS screens.",
+    };
+  if (score >= 60)
+    return {
+      label: "Needs work",
+      tone: "text-amber-600 dark:text-amber-400",
+      note: "A few fixes below will lift this score meaningfully.",
+    };
+  return {
+    label: "At risk",
+    tone: "text-rose-600 dark:text-rose-400",
+    note: "Applicant tracking systems may filter this resume out.",
+  };
+}
+
 function Page() {
   const { status } = useSession();
   const [file, setFile] = useState<File | null>(null);
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
   const [atsScore, setAtsScore] = useState<number>(0);
+  // Purely presentational: drives the spinner and the drop-zone highlight.
+  const [analyzing, setAnalyzing] = useState(false);
+  const [dragActive, setDragActive] = useState(false);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
@@ -67,11 +100,11 @@ function Page() {
     }
 
     try {
+      setAnalyzing(true);
       const formData = new FormData();
       formData.append("file", file);
       const result = await axios.post("/api/analyzer", formData);
       const data: AnalysisResult = result.data.data;
-      console.log(data);
       setResult(data);
       setAtsScore(Number(data.score) || 0); // score is stored as a string
 
@@ -94,6 +127,8 @@ function Page() {
       toast.error(
         serverMessage || "Failed to analyze resume. Please try again.",
       );
+    } finally {
+      setAnalyzing(false);
     }
   };
 
@@ -105,123 +140,222 @@ function Page() {
     setResult(null);
   };
 
+  const verdict = scoreVerdict(atsScore);
+  const keywords = result ? parseList<string>(result.missingKeywords) : [];
+  const suggestions = result ? parseList<Suggestion>(result.suggestions) : [];
+
   return (
-    <div className="flex justify-center  min-h-screen m-4">
-      <div className="w-full flex flex-col items-center pt-4 rounded-2xl lg:w-3xl md:w-2xl">
-        <h1 className=" text-xl lg:text-3xl font-bold mb-2">
+    <main className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 lg:py-12">
+      <header className="text-center">
+        <h1 className="text-2xl font-semibold tracking-tight text-neutral-900 sm:text-3xl dark:text-white">
           Analyze Your Resume
         </h1>
-        <p className="md:text-md text-sm text-gray-400 mb-8 text-center w-full">
-          Analyze your resume with AI and get personalized feedback to improve
-          your chances of landing your dream job.
+        <p className="mx-auto mt-2 max-w-xl text-sm text-pretty text-neutral-500 sm:text-base dark:text-neutral-400">
+          Get an ATS score and personalized feedback to improve your chances of
+          landing your dream job.
         </p>
+      </header>
 
-        {!result ? (
-          <div className="flex flex-col items-center gap-4 w-full max-w-5xl p-4 rounded-lg text-gray-400">
-            <div
-              className="border rounded-4xl border-dashed h-120 md:h-100 lg:w-3xl md:w-2xl w-sm text-center flex flex-col items-center justify-center gap-2"
-              onDragOver={(e) => {
-                e.preventDefault();
-              }}
-              onDrop={(e) => {
-                e.preventDefault();
-                const droppedFile = e.dataTransfer.files?.[0];
-                if (droppedFile) {
-                  setFile(droppedFile);
-                }
-              }}
-              onClick={() => {
-                if (fileInputRef.current) {
-                  fileInputRef.current.click();
-                }
-              }}
-            >
-              <input
-                type="file"
-                ref={fileInputRef}
-                accept=".pdf,.docx"
-                onChange={handleChange}
-                className="hidden"
-                placeholder="Drag and drop your file here or click to upload"
-              />
-              {file ? (
-                <>
-                  <p>{file.name}</p>
-                  <p>File size: {Math.round(file.size / 1024)} KB</p>
-                </>
-              ) : (
-                <>
-                  <p>Drag and drop your file here</p>
-                  <p>Supported formats: PDF, DOCX</p>
-                </>
-              )}
+      {!result ? (
+        <section className="mt-8 flex flex-col gap-4">
+          <input
+            type="file"
+            ref={fileInputRef}
+            accept=".pdf,.docx"
+            onChange={handleChange}
+            className="hidden"
+          />
+
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            onDragOver={(e) => {
+              e.preventDefault();
+              setDragActive(true);
+            }}
+            onDragLeave={() => setDragActive(false)}
+            onDrop={(e) => {
+              e.preventDefault();
+              setDragActive(false);
+              const droppedFile = e.dataTransfer.files?.[0];
+              if (droppedFile) {
+                setFile(droppedFile);
+              }
+            }}
+            className={`flex min-h-64 w-full cursor-pointer flex-col items-center justify-center gap-3 rounded-2xl border-2 border-dashed px-6 py-12 text-center transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 sm:min-h-72 dark:focus-visible:ring-offset-neutral-900 ${
+              dragActive
+                ? "border-purple-500 bg-purple-50 dark:bg-purple-500/10"
+                : "border-neutral-300 bg-white hover:border-purple-400 hover:bg-purple-50/40 dark:border-neutral-700 dark:bg-neutral-900 dark:hover:border-purple-500/50 dark:hover:bg-purple-500/5"
+            }`}
+          >
+            <span className="flex h-14 w-14 items-center justify-center rounded-full bg-purple-100 text-2xl text-purple-700 dark:bg-purple-500/15 dark:text-purple-300">
+              <FiUploadCloud />
+            </span>
+            <span className="text-base font-semibold text-neutral-900 dark:text-white">
+              Drag and drop your resume here
+            </span>
+            <span className="text-sm text-neutral-500 dark:text-neutral-400">
+              or <span className="font-medium text-purple-600">browse</span> to
+              upload — PDF or DOCX
+            </span>
+          </button>
+
+          {file && (
+            <div className="flex items-center gap-3 rounded-xl border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-purple-100 text-lg text-purple-700 dark:bg-purple-500/15 dark:text-purple-300">
+                <FiFileText />
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium text-neutral-900 dark:text-white">
+                  {file.name}
+                </p>
+                <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                  {Math.round(file.size / 1024)} KB
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={handleReset}
+                aria-label="Remove file"
+                className="rounded-lg p-2 text-neutral-400 transition-colors hover:bg-neutral-100 hover:text-neutral-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 dark:hover:bg-neutral-800 dark:hover:text-neutral-200"
+              >
+                <FiX />
+              </button>
             </div>
-            <button
-              className="bg-purple-500 hover:bg-purple-700 text-white font-semibold p-4 rounded disabled:opacity-60 w-full"
-              onClick={() => handleAnalyze(file)}
-              disabled={status === "loading"}
-            >
-              {status === "unauthenticated"
+          )}
+
+          <button
+            className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-purple-700 px-4 py-3.5 text-base font-semibold text-white transition-colors hover:bg-purple-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 dark:focus-visible:ring-offset-neutral-900"
+            onClick={() => handleAnalyze(file)}
+            disabled={analyzing || status === "loading"}
+          >
+            {analyzing && (
+              <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+            )}
+            {analyzing
+              ? "Analyzing…"
+              : status === "unauthenticated"
                 ? "Sign in to Analyze"
                 : "Analyze Resume"}
-            </button>
-          </div>
-        ) : (
-          <div className="flex flex-col items-center gap-4 w-full max-w-5xl h-170">
-            <div className="md:w-150 md:h-75 h-50 w-50">
+          </button>
+        </section>
+      ) : (
+        <section className="mt-8 flex flex-col gap-6">
+          {/* Score */}
+          <div className="flex flex-col items-center gap-2 rounded-2xl border border-neutral-200 bg-white p-6 sm:flex-row sm:gap-8 dark:border-neutral-800 dark:bg-neutral-900">
+            <div className="w-full max-w-60 shrink-0">
               <GaugeComponent
                 value={atsScore}
                 arc={{
                   subArcs: [
-                    { limit: 60, color: "#ff0000" },
-                    { limit: 80, color: "#ffff00" },
-                    { limit: 100, color: "#00ff00" },
+                    { limit: 60, color: "#ef4444" },
+                    { limit: 80, color: "#f59e0b" },
+                    { limit: 100, color: "#5cc55e" },
                   ],
+                }}
+                labels={{
+                  valueLabel: { hide: true },
+                  tickLabels: { hideMinMax: true },
                 }}
               />
             </div>
-            <div className="flex flex-col gap-4 w-full">
-              <p className="w-full border border-gray-300 p-4 rounded-lg">
-                <strong className=" text-red-500 font-bold">
-                  Missing Keywords:
-                </strong>{" "}
-                {(() => {
-                  const keywords = parseList<string>(result.missingKeywords);
-                  return keywords.length > 0 ? keywords.join(", ") : "None 🎉";
-                })()}
+            <div className="text-center sm:text-left">
+              <p className="text-xs font-medium tracking-wide text-neutral-500 uppercase dark:text-neutral-400">
+                ATS Score
               </p>
-              <p className="w-full border border-gray-300 p-4 rounded-lg">
-                <strong className=" text-blue-500 font-bold">Summary:</strong>{" "}
-                {result.summary || "No summary available."}
+              <p className={`mt-1 text-5xl font-bold ${verdict.tone}`}>
+                {atsScore}
+                <span className="text-xl font-medium text-neutral-400">
+                  /100
+                </span>
               </p>
-              <div className=" w-full rounded-lg p-4 border border-gray-300">
-                <strong className=" text-green-500 font-bold ">
-                  Suggestions to Improve:
-                </strong>
-                {parseList<Suggestion>(result.suggestions).map((s, index) => (
-                  <div key={index} className="flex flex-col mt-2">
-                    <li>
-                      <strong>{s.title}:</strong> {s.description}
-                    </li>
-                    {s.priority && (
-                      <p className="text-sm text-gray-500">
-                        Priority: {s.priority}
-                      </p>
-                    )}
-                  </div>
-                ))}
-              </div>
+              <p className={`mt-1 text-base font-semibold ${verdict.tone}`}>
+                {verdict.label}
+              </p>
+              <p className="mt-1 text-sm text-pretty text-neutral-500 dark:text-neutral-400">
+                {verdict.note}
+              </p>
             </div>
-            <button
-              className="bg-gray-500 hover:bg-gray-700 text-white font-semibold p-4 rounded w-full text-center"
-              onClick={handleReset}
-            >
-              Reset
-            </button>
           </div>
-        )}
-      </div>
-    </div>
+
+          {/* Summary */}
+          <div className="rounded-2xl border border-neutral-200 bg-white p-6 dark:border-neutral-800 dark:bg-neutral-900">
+            <h2 className="text-sm font-semibold tracking-wide text-neutral-500 uppercase dark:text-neutral-400">
+              Summary
+            </h2>
+            <p className="mt-2 leading-relaxed text-pretty text-neutral-700 dark:text-neutral-200">
+              {result.summary || "No summary available."}
+            </p>
+          </div>
+
+          {/* Missing keywords */}
+          <div className="rounded-2xl border border-neutral-200 bg-white p-6 dark:border-neutral-800 dark:bg-neutral-900">
+            <h2 className="text-sm font-semibold tracking-wide text-neutral-500 uppercase dark:text-neutral-400">
+              Missing Keywords
+            </h2>
+            {keywords.length > 0 ? (
+              <ul className="mt-3 flex flex-wrap gap-2">
+                {keywords.map((keyword) => (
+                  <li
+                    key={keyword}
+                    className="rounded-full bg-rose-50 px-3 py-1 text-sm font-medium text-rose-700 ring-1 ring-rose-200 ring-inset dark:bg-rose-500/10 dark:text-rose-300 dark:ring-rose-500/25"
+                  >
+                    {keyword}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="mt-2 text-emerald-600 dark:text-emerald-400">
+                Nothing missing — great keyword coverage 🎉
+              </p>
+            )}
+          </div>
+
+          {/* Suggestions */}
+          {suggestions.length > 0 && (
+            <div>
+              <h2 className="text-lg font-semibold text-neutral-900 dark:text-white">
+                Suggestions to improve
+              </h2>
+              <ul className="mt-3 flex flex-col gap-3">
+                {suggestions.map((suggestion, index) => (
+                  <li
+                    key={index}
+                    className="rounded-xl border border-neutral-200 bg-white p-5 dark:border-neutral-800 dark:bg-neutral-900"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <p className="font-semibold text-neutral-900 dark:text-white">
+                        {suggestion.title}
+                      </p>
+                      {suggestion.priority && (
+                        <span
+                          className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium capitalize ${
+                            priorityStyles[suggestion.priority.toLowerCase()] ??
+                            priorityStyles.low
+                          }`}
+                        >
+                          {suggestion.priority}
+                        </span>
+                      )}
+                    </div>
+                    <p className="mt-2 text-sm leading-relaxed text-neutral-600 dark:text-neutral-300">
+                      {suggestion.description}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <button
+            className="w-full rounded-lg border border-neutral-300 px-4 py-3 text-sm font-semibold text-neutral-700 transition-colors hover:bg-neutral-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 dark:border-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-800 dark:focus-visible:ring-offset-neutral-900"
+            onClick={handleReset}
+          >
+            Reset{" "}
+          </button>
+        </section>
+      )}
+    </main>
   );
 }
 

@@ -215,8 +215,12 @@ export async function GET(req: Request) {
       message: "Analyzed resume fetched successfully",
     });
   } catch (error) {
+    // Log it — this handler is a plain DB read, so a failure here is almost
+    // always a connection/schema problem, and swallowing it silently made the
+    // generic 500 impossible to diagnose from the server output.
+    console.error("analyzer GET error:", error);
     return NextResponse.json(
-      { error: "Failed to analyze resume" },
+      { error: "Failed to fetch analyzed resumes" },
       { status: 500 },
     );
   }

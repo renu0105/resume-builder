@@ -43,6 +43,13 @@
       "when": 1783349028791,
       "tag": "0005_wise_callisto",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1786466906814,
+      "tag": "0006_drop_fk_serial_defaults",
+      "breakpoints": true
     }
   ]
 }

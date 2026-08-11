@@ -87,58 +87,69 @@ function Page() {
   };
 
   return (
-    <div className="flex flex-col items-center w-full my-4 md:my-2">
-      <h1 className="lg:text-2xl text-lg font-bold">AI Assistant</h1>
-      <p className="text-neutral-500">Ask anything to the AI assistant!</p>
+    <div className="mx-auto flex w-full max-w-3xl flex-col items-center px-4 pt-8 pb-28 sm:px-6">
+      <h1 className="text-2xl font-bold text-neutral-900 lg:text-3xl dark:text-white">
+        AI Assistant
+      </h1>
+      <p className="mt-1 text-neutral-500 dark:text-neutral-400">
+        Ask anything to the AI assistant!
+      </p>
       <form
         onSubmit={(e) => {
           e.preventDefault();
           fetchAnswer(askedQuestion);
         }}
-        className="w-full lg:w-5xl"
+        className="w-full"
       >
         {message.length === 0 ? (
-          <div className="border border-gray-300 rounded-lg flex flex-col items-center gap-2 justify-center h-150 lg:h-130  overflow-y-auto my-4 mx-4">
-            <p className="text-lg font-semibold">
+          <div className="mt-6 flex h-[55vh] flex-col items-center justify-center gap-2 overflow-y-auto rounded-2xl border border-dashed border-neutral-300 bg-white px-6 text-center sm:h-[60vh] dark:border-neutral-700 dark:bg-neutral-900">
+            <p className="text-lg font-semibold text-neutral-900 dark:text-white">
               Welcome to the AI Assistant!
             </p>
-            <p>Ask any question and get an instant answer.</p>
+            <p className="text-neutral-500 dark:text-neutral-400">
+              Ask any question and get an instant answer.
+            </p>
           </div>
         ) : (
-          <div className="p-4 border border-gray-200 rounded-lg w-full max-w-md md:max-w-3xl lg:max-w-7xl flex flex-col items-center gap-2 justify-start h-150 lg:h-130 my-4 overflow-y-auto mx-auto">
+          <div className="mt-6 flex h-[55vh] w-full flex-col justify-start gap-3 overflow-y-auto rounded-2xl border border-neutral-200 bg-white p-4 sm:h-[60vh] dark:border-neutral-800 dark:bg-neutral-900">
             {message.map((msg, index) => (
               <div
                 key={index}
-                className={`p-4 rounded-lg ${msg.role === "user" ? "bg-neutral-500 text-white self-end" : "bg-gray-200 self-start"}`}
+                className={`max-w-[85%] px-4 py-3 leading-relaxed ${msg.role === "user" ? "self-end rounded-2xl rounded-br-sm bg-purple-600 text-white" : "self-start rounded-2xl rounded-bl-sm border border-neutral-200 bg-neutral-50 text-neutral-800 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100"}`}
               >
                 {msg.content}
               </div>
             ))}
             {loading && (
-              <div className="p-4 rounded-lg bg-gray-200 self-start text-gray-500 animate-pulse">
+              <div className="max-w-[85%] animate-pulse self-start rounded-2xl rounded-bl-sm border border-neutral-200 bg-neutral-50 px-4 py-3 text-neutral-500 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-400">
                 Thinking...
               </div>
             )}
             <div ref={bottomRef} />
           </div>
         )}
-        <div className="flex fixed bottom-2  border border-gray-300 p-2 rounded-2xl justify-between w-sm md:w-200 lg:w-250 bg-white md:m-2 m-4">
+        <div className="fixed bottom-4 left-1/2 flex w-[calc(100%-2rem)] max-w-3xl -translate-x-1/2 items-center justify-between gap-2 rounded-2xl border border-neutral-300 bg-white p-2 shadow-lg sm:w-[calc(100%-3rem)] dark:border-neutral-700 dark:bg-neutral-900">
           <input
             type="text"
             placeholder="Type your question here..."
             value={askedQuestion}
             onChange={(e) => setAskedQuestion(e.target.value)}
             disabled={loading}
-            className="bg-transparent focus:outline-none w-full text-gray-700 placeholder-gray-400"
+            className="w-full bg-transparent px-3 py-2 text-neutral-800 placeholder-neutral-400 focus:outline-none disabled:opacity-60 dark:text-neutral-100"
           />
-          <div className="flex gap-2">
-            <button type="button" onClick={startListening} disabled={loading}>
+          <div className="flex shrink-0 items-center gap-2">
+            <button
+              type="button"
+              onClick={startListening}
+              disabled={loading}
+              className="rounded-lg px-3 py-2 transition-colors hover:bg-neutral-100 disabled:opacity-50 dark:hover:bg-neutral-800"
+            >
               🎤
             </button>
             <button
               type="submit"
               disabled={loading || !askedQuestion.trim()}
-              className="bg-purple-700 hover:bg-purple-900 text-white font-semibold p-2 rounded  text-center"
+              className="rounded-lg bg-purple-700 px-4 py-2 text-center font-semibold text-white transition-colors hover:bg-purple-800 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {loading ? "..." : "Submit"}
             </button>
