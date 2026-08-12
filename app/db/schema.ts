@@ -17,8 +17,12 @@ export const resume = pgTable("resume", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+// A log of which template each user saved a resume with — the selectable
+// catalogue itself lives in lib/templateMeta.ts. `userId` is nullable only
+// because rows written before the column existed have no known owner.
 export const resumeTemplate = pgTable("resumeTemplate", {
   id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id),
   name: text("name").notNull(),
   previewImage: text("preview_image").notNull(),
   latexTemplate: text("latex_template").notNull(),

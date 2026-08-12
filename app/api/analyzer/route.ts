@@ -5,8 +5,9 @@ import mammoth from "mammoth";
 import { db } from "@/lib/db";
 import { resume, resumeAnalysis, users } from "@/app/db/schema";
 import { authOptions } from "@/lib/authOptions";
+import { getUserId, UnauthorizedError } from "@/lib/auth";
 import { getServerSession } from "next-auth/next";
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, getTableColumns } from "drizzle-orm";
 
 const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY,
@@ -207,14 +208,29 @@ ${resumeText}
   }
 }
 
-export async function GET(req: Request) {
+export async function GET() {
   try {
-    const anaylzedResume = await db.select().from(resumeAnalysis);
+    const userId = await getUserId();
+
+    // `resumeAnalysis` has no user column of its own — it is owned through the
+    // resume it belongs to, so join and filter there. Selecting the table
+    // unfiltered meant every signed-in user saw the most recent analysis on the
+    // site (another user's score and suggestions) on their dashboard.
+    const anaylzedResume = await db
+      .select(getTableColumns(resumeAnalysis))
+      .from(resumeAnalysis)
+      .innerJoin(resume, eq(resumeAnalysis.resumeId, resume.id))
+      .where(eq(resume.userId, userId))
+      .orderBy(desc(resumeAnalysis.createdAt), desc(resumeAnalysis.id));
+
     return NextResponse.json({
       anaylzedResume,
       message: "Analyzed resume fetched successfully",
     });
   } catch (error) {
+    if (error instanceof UnauthorizedError) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
     // Log it — this handler is a plain DB read, so a failure here is almost
     // always a connection/schema problem, and swallowing it silently made the
     // generic 500 impossible to diagnose from the server output.

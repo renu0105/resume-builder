@@ -65,7 +65,10 @@ function Nav() {
         </div>
         {session?.user ? (
           <>
-            <div className="text-lg font-medium flex lg:flex-row flex-col gap-4 items-start lg:h-fit h-250 px-4 lg:w-5xl lg:items-center justify-between bg-white lg:bg-transparent lg:bg-none text-neutral-700 dark:bg-neutral-950 dark:lg:bg-transparent dark:text-neutral-300">
+            {/* Same fill-the-sidebar treatment as the signed-out branch — a
+                fixed 62.5rem height pushed the account button off-screen on
+                small viewports. */}
+            <div className="text-lg font-medium flex lg:flex-row flex-col gap-4 items-start min-h-0 flex-1 overflow-y-auto lg:h-fit lg:flex-none lg:overflow-visible px-4 lg:w-5xl lg:items-center justify-between bg-white lg:bg-transparent lg:bg-none text-neutral-700 dark:bg-neutral-950 dark:lg:bg-transparent dark:text-neutral-300">
               <div className="flex lg:flex-row flex-col gap-8 lg:w-400 my-4">
                 {navLink.map((link) => (
                   <Link
@@ -78,7 +81,7 @@ function Nav() {
                 ))}
               </div>
               <button
-                className="flex flex-row gap-4 items-center bg-purple-50 hover:bg-purple-100 lg:bg-transparent lg:hover:bg-transparent rounded-lg px-4 py-4 self-end lg:w-44 w-full mb-6 transition-colors dark:bg-purple-500/10 dark:hover:bg-purple-500/20 dark:lg:bg-transparent"
+                className="flex flex-row gap-4 items-center bg-purple-50 hover:bg-purple-100 lg:bg-transparent lg:hover:bg-transparent rounded-lg px-4 py-4 self-end shrink-0 lg:w-44 w-full mb-6 transition-colors dark:bg-purple-500/10 dark:hover:bg-purple-500/20 dark:lg:bg-transparent"
                 onClick={() => setSignedIn(!isSignedIn)}
               >
                 <p className="bg-purple-700 rounded-full p-4 px-6 text-white">
@@ -121,9 +124,11 @@ function Nav() {
             )}
           </>
         ) : (
-          <div
-            className="text-lg font-medium flex lg:flex-row flex-col gap-4 items-start lg:h-fit h-200 px-4 lg:w-5xl lg:items-center lg:bg-transparent lg:bg-none justify-between bg-white text-neutral-800 dark:bg-neutral-950 dark:text-neutral-100 dark:lg:bg-transparent"
-          >
+          // On mobile this fills the remaining sidebar height (flex-1) instead
+          // of a fixed 50rem, which pushed the Sign in button below the fold on
+          // small screens. min-h-0 + overflow-y-auto keeps it reachable on very
+          // short viewports. Desktop keeps its row layout untouched.
+          <div className="text-lg font-medium flex lg:flex-row flex-col gap-4 items-start min-h-0 flex-1 overflow-y-auto lg:h-fit lg:flex-none lg:overflow-visible px-4 lg:w-5xl lg:items-center lg:bg-transparent lg:bg-none justify-between bg-white text-neutral-800 dark:bg-neutral-950 dark:text-neutral-100 dark:lg:bg-transparent">
             <div className="flex lg:flex-row flex-col gap-8 lg:w-400 my-4 lg:justify-center">
               {defaultLinks.map((link) => (
                 <Link
@@ -137,7 +142,7 @@ function Nav() {
             </div>
             <button
               onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
-              className="text-lg font-semibold rounded-lg w-44 p-4 transition-colors duration-200 bg-purple-700 text-white hover:bg-purple-800 text-center mb-12 lg:mb-0"
+              className="text-lg font-semibold rounded-lg w-full shrink-0 lg:w-44 p-4 transition-colors duration-200 bg-purple-700 text-white hover:bg-purple-800 text-center mb-6 lg:mb-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-950"
             >
               Sign in
             </button>

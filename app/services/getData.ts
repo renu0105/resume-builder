@@ -26,8 +26,8 @@ export const getAnalyzedResume = async () => {
   try {
     const response = await axios.get("/api/analyzer");
     const list = response.data.anaylzedResume ?? [];
-    // Return the most recent analysis (last item in the list).
-    return list[list.length - 1] ?? null;
+    // The API returns this user's analyses newest first.
+    return list[0] ?? null;
   } catch (error) {
     console.error("Error analyzing resume data:", error);
     throw error;

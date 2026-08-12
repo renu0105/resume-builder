@@ -50,6 +50,13 @@
       "when": 1786466906814,
       "tag": "0006_drop_fk_serial_defaults",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1786535157014,
+      "tag": "0007_add_template_user_id",
+      "breakpoints": true
     }
   ]
 }

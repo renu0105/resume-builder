@@ -3,22 +3,32 @@ import { getServerSession } from "next-auth/next";
 import { and, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { authOptions } from "@/lib/authOptions";
+import { getUserId, UnauthorizedError } from "@/lib/auth";
 import { resume, users } from "@/app/db/schema";
 
-export async function GET(req: Request) {
+export async function GET() {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session || !session.user || !session.user.email) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-    const allResumes = await db.select().from(resume);
+    const userId = await getUserId();
+
+    // Scope to the signed-in user — an unfiltered select handed every caller
+    // every user's resumes.
+    const allResumes = await db
+      .select()
+      .from(resume)
+      .where(eq(resume.userId, userId))
+      .orderBy(resume.createdAt, resume.id);
+
     return NextResponse.json({
       allResumes,
       message: "All resumes fetched successfully",
     });
   } catch (error) {
+    if (error instanceof UnauthorizedError) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    console.error("resume GET error:", error);
     return NextResponse.json(
-      { error: "Failed to fetch user profile" },
+      { error: "Failed to fetch resumes" },
       { status: 500 },
     );
   }
