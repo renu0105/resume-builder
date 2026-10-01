@@ -6,7 +6,7 @@ import { Providers } from "@/components/Providers";
 export const metadata: Metadata = {
   title: "Resume Nova",
   description:
-    "A resume builder built with Next.js, Tailwind CSS, and TypeScript.",
+    "Build ATS-friendly resumes, analyze your CV, and practice interviews with AI.",
 };
 
 export default function RootLayout({

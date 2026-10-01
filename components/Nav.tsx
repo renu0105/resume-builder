@@ -2,172 +2,234 @@
 import { useSession, signIn, signOut } from "next-auth/react";
 import { useTheme } from "next-themes";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
 import { CgClose } from "react-icons/cg";
-import { TfiMenuAlt } from "react-icons/tfi";
-import { FiLogOut } from "react-icons/fi";
+import { FiLogOut, FiMenu, FiMoon, FiSun } from "react-icons/fi";
+
+const appLinks = [
+  { name: "Dashboard", href: "/dashboard" },
+  { name: "Analyzer", href: "/analyzer" },
+  { name: "Templates", href: "/templates" },
+  { name: "Interview Prep", href: "/interview-prep" },
+  { name: "AI Assistant", href: "/chat-bot" },
+];
+
+const marketingLinks = [
+  { name: "Templates", href: "/hero-section#templates" },
+  { name: "About", href: "/hero-section#about" },
+  { name: "Features", href: "/hero-section#features" },
+];
 
 function Nav() {
-  const navLink = [
-    { name: "Dashboard", href: "/dashboard" },
-    { name: "Analyzer", href: "/analyzer" },
-    { name: "Resume Templates", href: "/templates" },
-    { name: "Practice Interview", href: "/interview-prep" },
-    { name: "AI Assistant", href: "/chat-bot" },
-  ];
-
-  const defaultLinks = [
-    { name: "About", href: "#about" },
-    { name: "Features", href: "#features" },
-  ];
-
   const { resolvedTheme, setTheme } = useTheme();
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
+  const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
-  const [isSideBarOpen, setSideBarOpen] = useState(false);
-  const [isSignedIn, setSignedIn] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const id = requestAnimationFrame(() => setMounted(true));
     return () => cancelAnimationFrame(id);
   }, []);
 
-  if (!mounted) {
-    return <button className="...">Theme</button>;
+  // Close the drawer and account menu whenever the route changes.
+  const [lastPath, setLastPath] = useState(pathname);
+  if (pathname !== lastPath) {
+    setLastPath(pathname);
+    setDrawerOpen(false);
+    setMenuOpen(false);
   }
 
-  return (
-    <div className="lg:mx-12 mx-2 lg:bg-transparent lg:text-left flex flex-row lg:justify-center lg:items-center">
-      <button
-        onClick={() => setSideBarOpen(!isSideBarOpen)}
-        className="text-neutral-600 text-lg font-medium hover:bg-purple-50 hover:text-purple-700 rounded-lg transition-colors duration-200 justify-center p-4 lg:hidden dark:text-neutral-300 dark:hover:bg-purple-500/10 dark:hover:text-purple-300"
-      >
-        <TfiMenuAlt />
-      </button>
-      <div
-        className={`${
-          isSideBarOpen ? "flex" : "hidden"
-        } lg:flex lg:flex-row flex-col justify-between lg:items-center max-w-screen fixed lg:static top-0 left-0 lg:p-0  border-r lg:border-none border-neutral-200 z-50 w-64 lg:w-350 bg-white lg:bg-transparent h-screen lg:h-24 dark:border-neutral-800 dark:bg-neutral-950 dark:lg:bg-transparent`}
-      >
-        <div className="flex lg:flex-row items-center gap-2 border-b lg:border-none border-neutral-200 bg-purple-700 lg:bg-transparent dark:border-neutral-800 dark:bg-purple-900 dark:lg:bg-transparent">
-          <button className="text-xl text-white lg:text-neutral-800 text-left w-full lg:w-fit p-4 dark:lg:text-white">
-            Resume
-            <strong className="text-purple-200 transition-colors hover:text-white lg:text-purple-600 lg:hover:text-purple-800 dark:lg:text-purple-400 dark:lg:hover:text-purple-300">
-              Nova
-            </strong>
-          </button>
-          <button
-            onClick={() => setSideBarOpen(false)}
-            className="text-purple-100 hover:text-white text-lg font-medium transition-colors duration-200 justify-center p-4 lg:hidden"
-          >
-            <CgClose />
-          </button>
-        </div>
-        {session?.user ? (
-          <>
-            {/* Same fill-the-sidebar treatment as the signed-out branch — a
-                fixed 62.5rem height pushed the account button off-screen on
-                small viewports. */}
-            <div className="text-lg font-medium flex lg:flex-row flex-col gap-4 items-start min-h-0 flex-1 overflow-y-auto lg:h-fit lg:flex-none lg:overflow-visible px-4 lg:w-5xl lg:items-center justify-between bg-white lg:bg-transparent lg:bg-none text-neutral-700 dark:bg-neutral-950 dark:lg:bg-transparent dark:text-neutral-300">
-              <div className="flex lg:flex-row flex-col gap-8 lg:w-400 my-4">
-                {navLink.map((link) => (
-                  <Link
-                    key={link.name}
-                    href={link.href}
-                    className="border-b-2 border-transparent py-2 text-neutral-800 transition-colors hover:border-purple-600 hover:text-purple-600 dark:text-gray-200 dark:hover:text-purple-400"
-                  >
-                    {link.name}
-                  </Link>
-                ))}
-              </div>
-              <button
-                className="flex flex-row gap-4 items-center bg-purple-50 hover:bg-purple-100 lg:bg-transparent lg:hover:bg-transparent rounded-lg px-4 py-4 self-end shrink-0 lg:w-44 w-full mb-6 transition-colors dark:bg-purple-500/10 dark:hover:bg-purple-500/20 dark:lg:bg-transparent"
-                onClick={() => setSignedIn(!isSignedIn)}
-              >
-                <p className="bg-purple-700 rounded-full p-4 px-6 text-white">
-                  {session?.user?.name
-                    ?.split(" ")[0]
-                    ?.charAt(0)
-                    .toUpperCase() || null}
-                </p>
-                <p className="text-neutral-700 lg:hidden dark:text-neutral-200">
-                  {" "}
-                  {session?.user?.name?.split(" ")[0]}
-                </p>
-              </button>
-            </div>
+  // Dismiss the account menu on outside click / Escape.
+  useEffect(() => {
+    if (!menuOpen && !drawerOpen) return;
+    const onClick = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setMenuOpen(false);
+        setDrawerOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", onClick);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onClick);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [menuOpen, drawerOpen]);
 
-            {isSignedIn && (
-              <div className="absolute z-50 w-52 rounded-xl border border-neutral-200 bg-white p-2 shadow-xl bottom-24 left-6 lg:bottom-auto lg:left-auto lg:top-16 lg:right-16 dark:border-neutral-700 dark:bg-neutral-900">
-                <div className="flex items-center gap-3 px-3 py-2">
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-purple-600 text-sm font-semibold text-white">
-                    {session?.user?.name?.charAt(0).toUpperCase() ?? "U"}
-                  </span>
-                  <div className="min-w-0">
+  const user = session?.user;
+  const links = user ? appLinks : marketingLinks;
+  const initial = user?.name?.charAt(0).toUpperCase() ?? "U";
+  const isDark = mounted && resolvedTheme === "dark";
+
+  const isActive = (href: string) =>
+    !href.includes("#") &&
+    (pathname === href || pathname.startsWith(`${href}/`));
+
+  const themeButton = (
+    <button
+      onClick={() => setTheme(isDark ? "light" : "dark")}
+      aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+      title={isDark ? "Switch to light mode" : "Switch to dark mode"}
+      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-neutral-200 text-neutral-600 transition-colors hover:bg-neutral-100 hover:text-neutral-900 dark:border-neutral-700 dark:text-neutral-300 dark:hover:bg-neutral-800 dark:hover:text-white"
+    >
+      {/* Render nothing until mounted so the icon never mismatches the theme. */}
+      {mounted && (isDark ? <FiSun /> : <FiMoon />)}
+    </button>
+  );
+
+  return (
+    <header className="sticky top-0 z-40 w-full border-b border-neutral-200/80 bg-white/80 backdrop-blur-md dark:border-neutral-800/80 dark:bg-neutral-950/80">
+      <div className="mx-auto flex h-16 w-full max-w-7xl items-center gap-4 px-4 sm:px-6 lg:px-8">
+        <button
+          onClick={() => setDrawerOpen(true)}
+          aria-label="Open menu"
+          className="-ml-2 rounded-lg p-2 text-xl text-neutral-700 transition-colors hover:bg-neutral-100 lg:hidden dark:text-neutral-200 dark:hover:bg-neutral-800"
+        >
+          <FiMenu />
+        </button>
+
+        <Link
+          href={user ? "/dashboard" : "/hero-section"}
+          className="text-xl font-semibold tracking-tight text-neutral-900 dark:text-white"
+        >
+          Resume<span className="text-purple-600 dark:text-purple-400">Nova</span>
+        </Link>
+
+        <nav className="ml-6 hidden items-center gap-1 lg:flex">
+          {links.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                isActive(link.href)
+                  ? "bg-purple-50 text-purple-700 dark:bg-purple-500/15 dark:text-purple-300"
+                  : "text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 dark:text-neutral-300 dark:hover:bg-neutral-800 dark:hover:text-white"
+              }`}
+            >
+              {link.name}
+            </Link>
+          ))}
+        </nav>
+
+        <div className="ml-auto flex items-center gap-3">
+          {themeButton}
+
+          {user ? (
+            <div className="relative" ref={menuRef}>
+              <button
+                onClick={() => setMenuOpen((open) => !open)}
+                aria-label="Account menu"
+                aria-expanded={menuOpen}
+                className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-600 text-sm font-semibold text-white ring-offset-2 transition hover:bg-purple-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 dark:ring-offset-neutral-950"
+              >
+                {initial}
+              </button>
+              {menuOpen && (
+                <div className="absolute right-0 mt-2 w-60 rounded-xl border border-neutral-200 bg-white p-2 shadow-xl dark:border-neutral-700 dark:bg-neutral-900">
+                  <div className="px-3 py-2">
                     <p className="truncate text-sm font-medium text-neutral-800 dark:text-neutral-100">
-                      {session?.user?.name}
+                      {user.name}
                     </p>
                     <p className="truncate text-xs text-neutral-500 dark:text-neutral-400">
-                      {session?.user?.email}
+                      {user.email}
                     </p>
                   </div>
+                  <div className="my-1 h-px bg-neutral-200 dark:bg-neutral-700" />
+                  <button
+                    onClick={() => signOut({ callbackUrl: "/hero-section" })}
+                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-rose-600 transition-colors hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-500/10"
+                  >
+                    <FiLogOut />
+                    Log out
+                  </button>
                 </div>
-                <div className="my-1 h-px bg-neutral-200 dark:bg-neutral-700" />
-                <button
-                  onClick={() => signOut({ callbackUrl: "/hero-section" })}
-                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-rose-600 transition-colors duration-200 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-500/10"
-                >
-                  <FiLogOut className="text-base" />
-                  Log Out
-                </button>
-              </div>
-            )}
-          </>
-        ) : (
-          // On mobile this fills the remaining sidebar height (flex-1) instead
-          // of a fixed 50rem, which pushed the Sign in button below the fold on
-          // small screens. min-h-0 + overflow-y-auto keeps it reachable on very
-          // short viewports. Desktop keeps its row layout untouched.
-          <div className="text-lg font-medium flex lg:flex-row flex-col gap-4 items-start min-h-0 flex-1 overflow-y-auto lg:h-fit lg:flex-none lg:overflow-visible px-4 lg:w-5xl lg:items-center lg:bg-transparent lg:bg-none justify-between bg-white text-neutral-800 dark:bg-neutral-950 dark:text-neutral-100 dark:lg:bg-transparent">
-            <div className="flex lg:flex-row flex-col gap-8 lg:w-400 my-4 lg:justify-center">
-              {defaultLinks.map((link) => (
+              )}
+            </div>
+          ) : (
+            status !== "loading" && (
+              <button
+                onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
+                className="rounded-full bg-purple-600 px-5 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-purple-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-950"
+              >
+                Sign in
+              </button>
+            )
+          )}
+        </div>
+      </div>
+
+      {/* Mobile drawer */}
+      {drawerOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <div
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            onClick={() => setDrawerOpen(false)}
+          />
+          <aside className="absolute inset-y-0 left-0 flex w-72 max-w-[85vw] flex-col bg-white shadow-2xl dark:bg-neutral-950">
+            <div className="flex h-16 items-center justify-between border-b border-neutral-200 px-4 dark:border-neutral-800">
+              <span className="text-xl font-semibold tracking-tight text-neutral-900 dark:text-white">
+                Resume
+                <span className="text-purple-600 dark:text-purple-400">Nova</span>
+              </span>
+              <button
+                onClick={() => setDrawerOpen(false)}
+                aria-label="Close menu"
+                className="rounded-lg p-2 text-xl text-neutral-600 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-800"
+              >
+                <CgClose />
+              </button>
+            </div>
+            <nav className="flex flex-1 flex-col gap-1 overflow-y-auto p-3">
+              {links.map((link) => (
                 <Link
-                  key={link.name}
+                  key={link.href}
                   href={link.href}
-                  className="border-b-2 border-transparent py-2 text-neutral-800 transition-colors hover:border-purple-600 hover:text-purple-700 dark:text-neutral-100 dark:hover:border-purple-400 dark:hover:text-purple-300"
+                  onClick={() => setDrawerOpen(false)}
+                  className={`rounded-lg px-3 py-2.5 text-base font-medium transition-colors ${
+                    isActive(link.href)
+                      ? "bg-purple-50 text-purple-700 dark:bg-purple-500/15 dark:text-purple-300"
+                      : "text-neutral-700 hover:bg-neutral-100 dark:text-neutral-200 dark:hover:bg-neutral-800"
+                  }`}
                 >
                   {link.name}
                 </Link>
               ))}
-            </div>
-            <button
-              onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
-              className="text-lg font-semibold rounded-lg w-full shrink-0 lg:w-44 p-4 transition-colors duration-200 bg-purple-700 text-white hover:bg-purple-800 text-center mb-6 lg:mb-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-950"
-            >
-              Sign in
-            </button>
-          </div>
-        )}
-      </div>
-      <button
-        onClick={() => {
-          setTheme(resolvedTheme === "dark" ? "light" : "dark");
-        }}
-        aria-label={
-          resolvedTheme === "dark"
-            ? "Switch to light mode"
-            : "Switch to dark mode"
-        }
-        title={
-          resolvedTheme === "dark"
-            ? "Switch to light mode"
-            : "Switch to dark mode"
-        }
-        className="mx-2 my-4 flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-neutral-200 bg-white text-lg shadow-sm transition-colors duration-200 hover:bg-neutral-100 md:my-0 dark:border-neutral-700 dark:bg-neutral-800 dark:hover:bg-neutral-700"
-      >
-        {resolvedTheme === "dark" ? "☀️" : "🌙"}
-      </button>
-    </div>
+            </nav>
+            {user && (
+              <div className="flex items-center gap-3 border-t border-neutral-200 p-4 dark:border-neutral-800">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-purple-600 text-sm font-semibold text-white">
+                  {initial}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium text-neutral-800 dark:text-neutral-100">
+                    {user.name}
+                  </p>
+                  <p className="truncate text-xs text-neutral-500 dark:text-neutral-400">
+                    {user.email}
+                  </p>
+                </div>
+                <button
+                  onClick={() => signOut({ callbackUrl: "/hero-section" })}
+                  aria-label="Log out"
+                  className="rounded-lg p-2 text-rose-600 hover:bg-rose-50 dark:text-rose-400 dark:hover:bg-rose-500/10"
+                >
+                  <FiLogOut />
+                </button>
+              </div>
+            )}
+          </aside>
+        </div>
+      )}
+    </header>
   );
 }
 

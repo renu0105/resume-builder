@@ -1,5 +1,6 @@
 "use client";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
+import Link from "next/link";
 import { TEMPLATES, type TemplateMeta } from "@/lib/templateMeta";
 import { BsGraphDown } from "react-icons/bs";
 import { FaMicrophone, FaRobot } from "react-icons/fa6";
@@ -65,23 +66,23 @@ const secure = [
 
 const additionalFeatures = [
   {
-    title: "AI-powered resume",
-    desc: "Generate resume by using AI Analyzing Resume ",
+    title: "AI-powered resumes",
+    desc: "Generate and refine your resume with AI-driven analysis.",
     logo: <GiArtificialIntelligence />,
   },
   {
     title: "Secure and private platform",
-    desc: "Only Accessed by Authorized user ",
+    desc: "Your data is only accessible to you, behind secure sign-in.",
     logo: <FcPrivacy />,
   },
   {
     title: "Interview preparation and coaching",
-    desc: "Teach You how to give interview and remove your hesitation",
+    desc: "Practice realistic questions and build confidence before the real thing.",
     logo: <HiOutlineSparkles />,
   },
   {
     title: "ATS-friendly templates and designs",
-    desc: "Build ATS-Friendly resume to get opportunity faster",
+    desc: "Build ATS-friendly resumes that get past filters and land interviews faster.",
     logo: <FcComboChart />,
   },
 ];
@@ -159,6 +160,9 @@ function TemplatePreview({ template }: { template: TemplateMeta }) {
 }
 
 export default function Home() {
+  const { status } = useSession();
+  const signedIn = status === "authenticated";
+
   return (
     <div className="mx-auto flex w-full max-w-7xl flex-col items-center gap-16 px-4 py-12 sm:px-6 lg:gap-24 lg:px-8 lg:py-20">
       <div className="flex max-w-4xl flex-col items-center justify-center gap-5 text-center sm:gap-6">
@@ -183,7 +187,7 @@ export default function Home() {
             href="#templates"
             className="inline-flex w-full cursor-pointer items-center justify-center rounded-full bg-purple-600 px-8 py-3.5 text-base font-semibold text-white shadow-sm transition-colors duration-200 hover:bg-purple-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 sm:w-60 sm:text-lg dark:focus-visible:ring-offset-neutral-900"
           >
-            ✈️ Explore Templates
+            Explore Templates
           </a>
         </div>
       </div>
@@ -242,12 +246,21 @@ export default function Home() {
           ))}
         </div>
 
-        <button
-          onClick={() => signIn("google", { callbackUrl: "/templates" })}
-          className="mt-6 cursor-pointer rounded-full bg-purple-600 px-8 py-3.5 text-base font-semibold text-white shadow-sm transition-colors duration-200 hover:bg-purple-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900"
-        >
-          Sign in to use these templates
-        </button>
+        {signedIn ? (
+          <Link
+            href="/templates"
+            className="mt-6 rounded-full bg-purple-600 px-8 py-3.5 text-base font-semibold text-white shadow-sm transition-colors duration-200 hover:bg-purple-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900"
+          >
+            Start building your resume
+          </Link>
+        ) : (
+          <button
+            onClick={() => signIn("google", { callbackUrl: "/templates" })}
+            className="mt-6 cursor-pointer rounded-full bg-purple-600 px-8 py-3.5 text-base font-semibold text-white shadow-sm transition-colors duration-200 hover:bg-purple-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-neutral-900"
+          >
+            Sign in to use these templates
+          </button>
+        )}
       </section>
 
       <section

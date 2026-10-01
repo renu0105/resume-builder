@@ -3,7 +3,6 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { TEMPLATES } from "@/lib/templateMeta";
-import { generateResume } from "@/lib/generateResume";
 import toast from "react-hot-toast";
 
 interface ExperienceEntry {
@@ -154,7 +153,7 @@ export default function ResumeBuilder() {
         setError(null);
         setPreviewUrl(null); // cleanup effect revokes the previous URL
       }, 0);
-      return;
+      return () => window.clearTimeout(timer);
     }
 
     let ignore = false;
@@ -189,7 +188,7 @@ export default function ResumeBuilder() {
   }, [formData, experience, projects, template]);
 
   return (
-    <div className="grid max-w-7xl gap-8 mx-auto md:px-20 px-4 my-8 lg:grid-cols-2 ">
+    <div className="mx-auto grid w-full max-w-7xl gap-8 px-4 py-8 sm:px-6 lg:grid-cols-2 lg:px-8">
       {/* ---- Form ---- */}
       <div className="flex flex-col gap-4">
         <div className="flex md:flex-row flex-col justify-between items-center gap-2">
